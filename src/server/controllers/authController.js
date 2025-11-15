@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
-import { User } from "@/models/User";
-import { City } from "@/models/City";
-import { Area } from "@/models/Area";
+import User from "@/models/User";
+import City from "@/models/City";
+import Area from "@/models/Area";
 import { generateToken } from "../utils/generateToken";
 
 export const registerUser = async (data) => {
