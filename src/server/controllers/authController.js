@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import City from "@/models/City";
 import Area from "@/models/Area";
+import jwt from "jsonwebtoken";
 import { createAccessToken, createRefreshToken } from "../utils/createTokens";
 
 export const registerUser = async (data) => {
@@ -57,37 +58,42 @@ export const registerUser = async (data) => {
   };
 };
 
-export const loginUser = async ({ phone, password }) => {
+export async function loginUser({ phone, password }) {
   if (!phone || !password) {
-    return { status: 400, json: { message: "All fields are required" } };
+    return { json: { message: "Phone and password required" }, status: 400 };
   }
 
   const user = await User.findOne({ phone });
-  if (!user) {
-    return { status: 400, json: { message: "Invalid credentials" } };
+  if (!user) return { json: { message: "User not found" }, status: 404 };
+
+  if (!user.password)
+    return { json: { message: "User has no password" }, status: 500 };
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) return { json: { message: "Invalid password" }, status: 401 };
+
+  if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    return { json: { message: "JWT secrets not set" }, status: 500 };
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return { status: 400, json: { message: "Invalid credentials" } };
-  }
+  const accessToken = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" }
+  );
 
-  const accessToken = createAccessToken(user);
-  const refreshToken = createRefreshToken(user);
+  const refreshToken = jwt.sign(
+    { id: user._id },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: "7d" }
+  );
 
   return {
-    status: 200,
     json: {
+      user: { id: user._id, name: user.name, role: user.role },
       message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-      },
-      accessToken, // for mobile
-      refreshToken,
     },
+    status: 200,
     cookies: { accessToken, refreshToken },
   };
-};
+}
