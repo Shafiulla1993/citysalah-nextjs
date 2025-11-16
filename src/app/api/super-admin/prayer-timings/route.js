@@ -1,6 +1,6 @@
-import { connectDB } from "@/lib/db";
-import { protect } from "@/lib/middleware/auth";
-import { allowRoles } from "@/lib/middleware/role";
+import connectDB from "@/lib/db";
+import { protect } from "@/server/middlewares/protect";
+import { allowRoles } from "@/server/middlewares/role";
 import { getAllTimingsController } from "@/server/controllers/superadmin/generalPrayerTimings.controller";
 
 export async function GET(request) {

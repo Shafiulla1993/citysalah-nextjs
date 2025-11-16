@@ -47,7 +47,7 @@ export async function createUserController({ body }) {
     name,
     email,
     phone,
-    passwordHash,
+    password: passwordHash,
     city: cityObj._id,
     area: areaObj._id,
     role: role || "public",

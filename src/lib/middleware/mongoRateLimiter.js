@@ -1,37 +1,50 @@
+import connectDB from "@/lib/db";
 import RateLimit from "@/models/RateLimit";
 
-export async function rateLimit(req, {
-  keyPrefix = "public",      // identify the type of limiter
-  limit = 100,               // max requests
-  windowSec = 60,            // time window in seconds
-} = {}) {
-  
-  const ip = req.headers.get("x-forwarded-for") || "unknown";
-  const key = `${keyPrefix}_${ip}`;
+export async function rateLimit(request, { keyPrefix, limit, windowSec }) {
+  // Ensure DB is connected BEFORE accessing the model
+  await connectDB();
 
-  const now = new Date();
-  const windowEnd = new Date(now.getTime() + windowSec * 1000);
+  const userIP =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    request.ip ||
+    "unknown";
 
-  // Find current record
+  const key = `${keyPrefix}_${userIP}`;
+
+  const now = Date.now();
+  const windowStart = now - windowSec * 1000;
+
   let record = await RateLimit.findOne({ key });
 
+  // First request → create new record
   if (!record) {
-    // First request
     await RateLimit.create({
       key,
-      points: 1,
-      expireAt: windowEnd,
+      count: 1,
+      lastRequest: now,
     });
     return { success: true };
   }
 
-  // Already exists
-  if (record.points >= limit) {
-    return { success: false, retryAfter: record.expireAt };
+  // Reset window if expired
+  if (record.lastRequest < windowStart) {
+    record.count = 1;
+    record.lastRequest = now;
+    await record.save();
+    return { success: true };
   }
 
-  // Update existing record
-  record.points += 1;
+  // If limit exceeded
+  if (record.count >= limit) {
+    const retryAfter = Math.ceil((record.lastRequest - windowStart) / 1000);
+    return { success: false, retryAfter };
+  }
+
+  // Increase count
+  record.count += 1;
+  record.lastRequest = now;
   await record.save();
 
   return { success: true };

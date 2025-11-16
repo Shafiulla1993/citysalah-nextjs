@@ -5,7 +5,9 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      // You can add custom colors, spacing, etc. here if needed
+    },
   },
   plugins: [],
 };

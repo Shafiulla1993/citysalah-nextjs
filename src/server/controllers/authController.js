@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import City from "@/models/City";
 import Area from "@/models/Area";
-import {generateToken} from "../utils/generateToken";
+import { createAccessToken, createRefreshToken } from "../utils/createTokens";
 
 export const registerUser = async (data) => {
   const { name, email, phone, password, city, area } = data;
@@ -32,9 +32,11 @@ export const registerUser = async (data) => {
     password: passwordHash,
     city,
     area,
+    role: "public",
   });
 
-  const token = generateToken(user._id);
+  const accessToken = createAccessToken(user);
+  const refreshToken = createRefreshToken(user);
 
   return {
     status: 201,
@@ -48,8 +50,10 @@ export const registerUser = async (data) => {
         area,
         role: user.role,
       },
-      token,
+      accessToken, // for mobile app
+      refreshToken, // for mobile app
     },
+    cookies: { accessToken, refreshToken }, // for web
   };
 };
 
@@ -68,7 +72,8 @@ export const loginUser = async ({ phone, password }) => {
     return { status: 400, json: { message: "Invalid credentials" } };
   }
 
-  const token = generateToken(user._id);
+  const accessToken = createAccessToken(user);
+  const refreshToken = createRefreshToken(user);
 
   return {
     status: 200,
@@ -80,7 +85,9 @@ export const loginUser = async ({ phone, password }) => {
         phone: user.phone,
         role: user.role,
       },
-      token,
+      accessToken, // for mobile
+      refreshToken,
     },
+    cookies: { accessToken, refreshToken },
   };
 };

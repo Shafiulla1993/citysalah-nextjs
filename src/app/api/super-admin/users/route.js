@@ -1,6 +1,6 @@
-import { connectDB } from "@/lib/db";
-import { protect } from "@/lib/middleware/auth";
-import {allowRoles} from "@/lib/middleware/role";
+import connectDB from "@/lib/db";
+import { protect } from "@/server/middlewares/protect";
+import { allowRoles } from "@/server/middlewares/role";
 import {
   getAllUsersController,
   createUserController,
@@ -44,4 +44,3 @@ export async function POST(request) {
   const res = await createUserController({ body });
   return new Response(JSON.stringify(res.json), { status: res.status });
 }
-

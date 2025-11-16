@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/middleware/mongoRateLimiter";
 
-export async function middleware(req) {
-  const path = req.nextUrl.pathname;
+// New Proxy Handler (replaces "middleware")
+export async function proxy(request) {
+  const path = request.nextUrl.pathname;
 
-  // Limit only public routes
+  // Apply rate limit only on public API routes
   if (path.startsWith("/api/public")) {
-    const result = await rateLimit(req, {
+    const result = await rateLimit(request, {
       keyPrefix: "public",
-      limit: 100,      // 100 requests
-      windowSec: 60,   // per minute
+      limit: 100, // 100 requests
+      windowSec: 60, // per minute
     });
 
     if (!result.success) {
@@ -23,9 +24,11 @@ export async function middleware(req) {
     }
   }
 
+  // Continue normally
   return NextResponse.next();
 }
 
-export const config = {
+// New config name: proxyConfig (replaces "config")
+export const proxyConfig = {
   matcher: ["/api/public/:path*"],
 };

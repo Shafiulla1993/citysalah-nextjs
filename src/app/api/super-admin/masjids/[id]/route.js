@@ -1,7 +1,7 @@
 // src/app/api/super-admin/masjids/[id]/route.js
-import { connectDB } from "@/lib/db";
-import { protect } from "@/lib/middleware/auth";
-import { allowRoles } from "@/lib/middleware/role";
+import connectDB from "@/lib/db";
+import { protect } from "@/server/middlewares/protect";
+import { allowRoles } from "@/server/middlewares/role";
 import { parseForm } from "@/lib/middleware/parseForm";
 import {
   getMasjidController,
@@ -15,10 +15,16 @@ export async function GET(request, context) {
   const { id } = await context.params;
 
   const auth = await protect(request);
-  if (auth.error) return new Response(JSON.stringify({ message: auth.error }), { status: auth.status });
+  if (auth.error)
+    return new Response(JSON.stringify({ message: auth.error }), {
+      status: auth.status,
+    });
 
   const check = allowRoles("super_admin")(auth.user);
-  if (check.error) return new Response(JSON.stringify({ message: check.error }), { status: 403 });
+  if (check.error)
+    return new Response(JSON.stringify({ message: check.error }), {
+      status: 403,
+    });
 
   const res = await getMasjidController({ id });
   return new Response(JSON.stringify(res.json), { status: res.status });
@@ -29,16 +35,30 @@ export async function PUT(request, context) {
   const { id } = await context.params;
 
   const auth = await protect(request);
-  if (auth.error) return new Response(JSON.stringify({ message: auth.error }), { status: auth.status });
+  if (auth.error)
+    return new Response(JSON.stringify({ message: auth.error }), {
+      status: auth.status,
+    });
 
   const check = allowRoles("super_admin")(auth.user);
-  if (check.error) return new Response(JSON.stringify({ message: check.error }), { status: 403 });
+  if (check.error)
+    return new Response(JSON.stringify({ message: check.error }), {
+      status: 403,
+    });
 
   // parse fields/files
-  const { fields, files } = await parseForm(request).catch((e) => ({ fields: {}, files: {} }));
+  const { fields, files } = await parseForm(request).catch((e) => ({
+    fields: {},
+    files: {},
+  }));
   const file = files?.image || files?.file || null;
 
-  const res = await updateMasjidController({ id, fields, file, user: auth.user });
+  const res = await updateMasjidController({
+    id,
+    fields,
+    file,
+    user: auth.user,
+  });
   return new Response(JSON.stringify(res.json), { status: res.status });
 }
 
@@ -47,10 +67,16 @@ export async function DELETE(request, context) {
   const { id } = await context.params;
 
   const auth = await protect(request);
-  if (auth.error) return new Response(JSON.stringify({ message: auth.error }), { status: auth.status });
+  if (auth.error)
+    return new Response(JSON.stringify({ message: auth.error }), {
+      status: auth.status,
+    });
 
   const check = allowRoles("super_admin")(auth.user);
-  if (check.error) return new Response(JSON.stringify({ message: check.error }), { status: 403 });
+  if (check.error)
+    return new Response(JSON.stringify({ message: check.error }), {
+      status: 403,
+    });
 
   const res = await deleteMasjidController({ id });
   return new Response(JSON.stringify(res.json), { status: res.status });

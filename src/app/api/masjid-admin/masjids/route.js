@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import connectDB from "@/lib/db";
 import Masjid from "@/models/Masjid";
 import { protect } from "@/lib/middleware/authMiddleware";
 import { role } from "@/lib/middleware/roleMiddleware";

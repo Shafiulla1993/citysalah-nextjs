@@ -1,12 +1,22 @@
 import mongoose from "mongoose";
 
-export async function connectDB() {
-  if (mongoose.connection.readyState >= 1) return;
+const MONGODB_URI = process.env.MONGO_URI;
+
+if (!MONGODB_URI) {
+  throw new Error("❌ MONGO_URI is missing in .env file");
+}
+
+let isConnected = false;
+
+export default async function connectDB() {
+  if (isConnected) return;
 
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB connected");
-  } catch (err) {
-    console.error("❌ MongoDB connection error:", err);
+    const conn = await mongoose.connect(MONGODB_URI);
+
+    isConnected = conn.connections[0].readyState === 1;
+    console.log("✅ MongoDB Connected");
+  } catch (error) {
+    console.error("❌ MongoDB connection error:", error);
   }
 }

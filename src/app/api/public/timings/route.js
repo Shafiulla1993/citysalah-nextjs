@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import moment from "moment-timezone";
-import { connectDB } from "@/lib/db";
+import connectDB from "@/lib/db";
 import GeneralPrayerTiming from "@/models/GeneralPrayerTiming";
 
 export async function POST(request) {
