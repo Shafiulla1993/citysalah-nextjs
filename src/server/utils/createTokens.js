@@ -15,3 +15,11 @@ export function createRefreshToken(user) {
     { expiresIn: "7d" } // long expiry
   );
 }
+
+export function verifyToken(token) {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET); // returns decoded payload
+  } catch (err) {
+    return null; // invalid or expired token
+  }
+}

@@ -8,12 +8,9 @@ export const authAPI = {
       body: JSON.stringify(data),
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || "Login failed");
-    }
-
-    return res.json();
+    const result = await res.json(); // parse JSON once
+    if (!res.ok) throw new Error(result.message || "Login failed");
+    return result; // parsed JSON
   },
 
   register: async (data) => {
@@ -23,12 +20,22 @@ export const authAPI = {
       body: JSON.stringify(data),
     });
 
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || "Registration failed");
+    return result;
+  },
+
+  logout: async () => {
+    const res = await fetch(`${BASE_URL}/auth/logout`, {
+      method: "POST",
+    });
+
     if (!res.ok) {
       const error = await res.json();
-      throw new Error(error.message || "Registration failed");
+      throw new Error(error.message || "Logout failed");
     }
 
-    return res.json();
+    return await res.json();
   },
 };
 

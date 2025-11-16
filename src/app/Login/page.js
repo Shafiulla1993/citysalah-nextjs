@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/api";
 import { Input } from "@/components/form/Input";
 import { Button } from "@/components/form/Button";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ phone: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const { fetchLoginState } = useAuth(); // ✅ hook inside component
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,8 +24,10 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Call your authAPI.login
-      const data = await authAPI.login(form);
+      const data = await authAPI.login(form); // parsed JSON
+
+      // Refresh auth context
+      await fetchLoginState();
 
       // Redirect based on role
       switch (data.user.role) {
@@ -33,13 +38,12 @@ export default function LoginPage() {
           router.push("/dashboard/masjid-admin");
           break;
         case "public":
-          router.push("/"); // Public homepage
+          router.push("/");
           break;
         default:
           setError("Unknown user role");
       }
     } catch (err) {
-      // Display server error
       setError(err.message || "Login failed");
     } finally {
       setLoading(false);

@@ -1,13 +1,18 @@
-import connectDB from "@/lib/db";
-import { protect } from "@/server/middlewares/protect";
+// src/app/api/auth/me/route.js
+import { verifyToken } from "@/server/utils/createTokens";
+import { NextResponse } from "next/server";
 
-export async function GET(request) {
-  await connectDB();
+export async function GET(req) {
+  const token = req.cookies.get("accessToken")?.value;
 
-  const auth = await protect(request);
-  if (auth.error) {
-    return Response.json({ message: auth.error }, { status: auth.status });
-  }
+  if (!token) return NextResponse.json({ loggedIn: false });
 
-  return Response.json({ user: auth.user });
+  const decoded = verifyToken(token);
+  if (!decoded) return NextResponse.json({ loggedIn: false });
+
+  return NextResponse.json({
+    loggedIn: true,
+    userId: decoded.userId,
+    role: decoded.role,
+  });
 }
