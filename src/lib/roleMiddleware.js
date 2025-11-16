@@ -1,4 +1,4 @@
-export function authorizeRoles(user, ...allowedRoles) {
+export function allowRoles(user, ...allowedRoles) {
   if (!user || !allowedRoles.includes(user.role)) {
     return { error: "Access denied: insufficient permissions", status: 403 };
   }

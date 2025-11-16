@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
-import { protect } from "@/middleware/auth";
+import { protect } from "@/lib/middleware/auth";
 import { connectDB } from "@/lib/db";
 
 // Cloudinary config

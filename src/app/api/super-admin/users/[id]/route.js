@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/db";
-import { protect } from "@/middleware/auth";
-import { authorizeRoles } from "@/middleware/role";
+import { protect } from "@/lib/middleware/auth";
+import { allowRoles } from "@/lib/middleware/role";
 import {
   getUserByIdController,
   updateUserController,
@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
     return new Response(JSON.stringify({ message: auth.error }), {
       status: auth.status,
     });
-  const roleCheck = authorizeRoles("super_admin")(auth.user);
+  const roleCheck = allowRoles("super_admin")(auth.user);
   if (roleCheck.error)
     return new Response(
       JSON.stringify({ message: roleCheck.error || "Forbidden" }),
@@ -32,7 +32,7 @@ export async function PUT(request, { params }) {
     return new Response(JSON.stringify({ message: auth.error }), {
       status: auth.status,
     });
-  const roleCheck = authorizeRoles("super_admin")(auth.user);
+  const roleCheck = allowRoles("super_admin")(auth.user);
   if (roleCheck.error)
     return new Response(
       JSON.stringify({ message: roleCheck.error || "Forbidden" }),
@@ -51,7 +51,7 @@ export async function DELETE(request, { params }) {
     return new Response(JSON.stringify({ message: auth.error }), {
       status: auth.status,
     });
-  const roleCheck = authorizeRoles("super_admin")(auth.user);
+  const roleCheck = allowRoles("super_admin")(auth.user);
   if (roleCheck.error)
     return new Response(
       JSON.stringify({ message: roleCheck.error || "Forbidden" }),

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import City from "@/models/City";
 import Area from "@/models/Area";
-import { generateToken } from "../utils/generateToken";
+import {generateToken} from "../utils/generateToken";
 
 export const registerUser = async (data) => {
   const { name, email, phone, password, city, area } = data;
@@ -29,10 +29,9 @@ export const registerUser = async (data) => {
     name,
     email,
     phone,
-    passwordHash,
+    password: passwordHash,
     city,
     area,
-    role: "superadmin",
   });
 
   const token = generateToken(user._id);
@@ -64,7 +63,7 @@ export const loginUser = async ({ phone, password }) => {
     return { status: 400, json: { message: "Invalid credentials" } };
   }
 
-  const isMatch = await bcrypt.compare(password, user.passwordHash);
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return { status: 400, json: { message: "Invalid credentials" } };
   }

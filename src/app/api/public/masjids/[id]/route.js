@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import { Masjid } from "@/models/Masjid";
+import Masjid from "@/models/Masjid";
 
 export async function GET(request, { params }) {
   try {

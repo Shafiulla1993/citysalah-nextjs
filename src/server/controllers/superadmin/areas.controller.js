@@ -5,42 +5,59 @@ import City from "@/models/City";
 import { generateSlug } from "@/lib/helpers/slugHelper";
 
 export async function createAreaController({ body }) {
-  let areasData = Array.isArray(body) ? body : [body];
-  const createdAreas = [];
+  const { name, city, center } = body;
 
-  for (let area of areasData) {
-    if (!area.name || !area.city)
-      return { status: 400, json: { message: "Name and city are required" } };
+  // Validate required fields
+  if (!name || !city) {
+    return { status: 400, json: { message: "Name and city are required" } };
+  }
 
-    if (typeof area.city === "string" && !mongoose.isValidObjectId(area.city)) {
-      const foundCity = await City.findOne({
-        name: { $regex: `^${area.city}$`, $options: "i" },
-      });
-      if (!foundCity)
-        return {
-          status: 404,
-          json: { message: `City not found for ${area.name}` },
-        };
-      area.city = foundCity._id;
+  let cityId = city;
+
+  // If city is a string name, find city by name
+  if (typeof city === "string" && !mongoose.isValidObjectId(city)) {
+    const foundCity = await City.findOne({
+      name: { $regex: `^${city}$`, $options: "i" },
+    });
+
+    if (!foundCity) {
+      return {
+        status: 404,
+        json: { message: `City not found: ${city}` },
+      };
     }
 
-    const slug = generateSlug(area.name);
-    const existingSlug = await Area.findOne({ slug, city: area.city });
-    if (existingSlug)
-      return {
-        status: 400,
-        json: {
-          message: `Another area with similar name already exists in this city (${area.name})`,
-        },
-      };
-
-    const newArea = await Area.create({ ...area, slug });
-    createdAreas.push(newArea);
+    cityId = foundCity._id;
   }
+
+  // Generate slug
+  const slug = generateSlug(name);
+
+  // Check existing slug in same city
+  const existingSlug = await Area.findOne({ slug, city: cityId });
+  if (existingSlug) {
+    return {
+      status: 400,
+      json: {
+        message: `Another area with a similar name already exists in this city (${name})`,
+      },
+    };
+  }
+
+  // Create area
+  const newArea = await Area.create({
+    name,
+    city: cityId,
+    slug,
+    center,
+  });
 
   return {
     status: 201,
-    json: { message: "Areas created successfully", data: createdAreas },
+    json: {
+      message: "Area created successfully",
+      data: newArea,
+    },
   };
 }
 

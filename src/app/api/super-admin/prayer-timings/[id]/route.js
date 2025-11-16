@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/db";
-import { protect } from "@/middleware/auth";
-import { authorizeRoles } from "@/middleware/role";
+import { protect } from "@/lib/middleware/auth";
+import { allowRoles } from "@/lib/middleware/role";
 import GeneralPrayerTiming from "@/models/GeneralPrayerTiming";
 
 export async function GET(request, { params }) {
@@ -10,7 +10,7 @@ export async function GET(request, { params }) {
     return new Response(JSON.stringify({ message: auth.error }), {
       status: auth.status,
     });
-  if (authorizeRoles("super_admin")(auth.user).error)
+  if (allowRoles("super_admin")(auth.user).error)
     return new Response(JSON.stringify({ message: "Forbidden" }), {
       status: 403,
     });
@@ -32,7 +32,7 @@ export async function PUT(request, { params }) {
     return new Response(JSON.stringify({ message: auth.error }), {
       status: auth.status,
     });
-  if (authorizeRoles("super_admin")(auth.user).error)
+  if (allowRoles("super_admin")(auth.user).error)
     return new Response(JSON.stringify({ message: "Forbidden" }), {
       status: 403,
     });
@@ -55,7 +55,7 @@ export async function DELETE(request, { params }) {
     return new Response(JSON.stringify({ message: auth.error }), {
       status: auth.status,
     });
-  if (authorizeRoles("super_admin")(auth.user).error)
+  if (allowRoles("super_admin")(auth.user).error)
     return new Response(JSON.stringify({ message: "Forbidden" }), {
       status: 403,
     });

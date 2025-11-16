@@ -1,6 +1,6 @@
 // src/server/controllers/superadmin/cities.controller.js
 import City from "@/models/City";
-import { generateSlug } from "@/lib/helpers/slugHelper";
+import {generateSlug}  from "@/lib/helpers/slugHelper";
 
 export async function createCityController({ body }) {
   const { name, timezone } = body;

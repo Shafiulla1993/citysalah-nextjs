@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/db";
-import { protect } from "@/middleware/auth";
+import { protect } from "@/lib/middleware/auth";
 
 export async function GET(request) {
   await connectDB();

@@ -16,7 +16,7 @@ const UserSchema = new Schema(
 
     phone: { type: String, required: true, unique: true, trim: true },
 
-    passwordHash: { type: String, required: true },
+    password: { type: String, required: true },
 
     role: {
       type: String,

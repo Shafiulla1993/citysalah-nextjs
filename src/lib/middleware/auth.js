@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { User } from "@/models/User";
+import User from "@/models/User";
 import { connectDB } from "@/lib/db";
 
 export async function protect(request) {

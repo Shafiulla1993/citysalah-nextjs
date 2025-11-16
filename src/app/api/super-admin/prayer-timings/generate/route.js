@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/db";
-import { protect } from "@/middleware/auth";
-import { authorizeRoles } from "@/middleware/role";
+import { protect } from "@/lib/middleware/auth";
+import { allowRoles } from "@/lib/middleware/role";
 import { generateDailyTimingsController } from "@/server/controllers/superadmin/generalPrayerTimings.controller";
 
 export async function POST(request) {
@@ -10,7 +10,7 @@ export async function POST(request) {
     return new Response(JSON.stringify({ message: auth.error }), {
       status: auth.status,
     });
-  if (authorizeRoles("super_admin")(auth.user).error)
+  if (allowRoles("super_admin")(auth.user).error)
     return new Response(JSON.stringify({ message: "Forbidden" }), {
       status: 403,
     });

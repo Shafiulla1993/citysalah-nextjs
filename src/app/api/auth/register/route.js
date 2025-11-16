@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/db";
-import { registerUser } from "@/server/controllers/authController";
+import  {registerUser} from "@/server/controllers/authController";
 
 export async function POST(request) {
   await connectDB();
