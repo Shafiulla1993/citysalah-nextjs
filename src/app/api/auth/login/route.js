@@ -1,40 +1,45 @@
+import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 import connectDB from "@/lib/db";
 import { loginUser } from "@/server/controllers/authController";
 
-export async function POST(request) {
-  try {
-    await connectDB();
-    const body = await request.json();
-    const result = await loginUser(body);
+export async function POST(req) {
+  await connectDB();
+  const { phone, password } = await req.json();
 
-    // Ensure result.json exists
-    if (!result || !result.json) {
-      return new Response(JSON.stringify({ message: "Login failed" }), {
-        status: 500,
-      });
-    }
+  const loginResult = await loginUser({ phone, password });
 
-    const response = new Response(JSON.stringify(result.json), {
-      status: result.status || 200,
-    });
-
-    if (result.cookies) {
-      response.headers.append(
-        "Set-Cookie",
-        `accessToken=${result.cookies.accessToken}; HttpOnly; Secure; Path=/; Max-Age=900; SameSite=Strict`
-      );
-      response.headers.append(
-        "Set-Cookie",
-        `refreshToken=${result.cookies.refreshToken}; HttpOnly; Secure; Path=/api/auth/refresh; Max-Age=604800; SameSite=Strict`
-      );
-    }
-
-    return response;
-  } catch (err) {
-    console.error("Login error:", err);
-    return new Response(
-      JSON.stringify({ message: err.message || "Internal server error" }),
-      { status: 500 }
+  if (!loginResult || !loginResult.json?.user) {
+    return NextResponse.json(
+      { message: loginResult?.json?.message || "Invalid credentials" },
+      { status: loginResult?.status || 401 }
     );
   }
+
+  const res = NextResponse.json(loginResult.json);
+
+  // Optionally, set cookies if loginUser returned them
+  if (loginResult.cookies?.accessToken) {
+    res.cookies.set("accessToken", loginResult.cookies.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 15,
+    });
+  }
+
+  if (loginResult.cookies?.refreshToken) {
+    res.cookies.set("refreshToken", loginResult.cookies.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/api/auth/refresh",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+  }
+
+  console.log(loginUser.role);
+
+  return res;
 }

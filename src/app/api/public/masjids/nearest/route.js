@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Masjid from "@/models/Masjid";
+import City from "@/models/City";
+import Area from "@/models/Area";
 
 export async function GET(request) {
   try {
