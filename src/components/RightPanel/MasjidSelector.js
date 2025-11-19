@@ -1,7 +1,6 @@
-// src/components/RightPanel/MasjidSelector
-
 "use client";
 import React, { useEffect, useState } from "react";
+import { Select } from "@/components/form/Select";
 
 export default function MasjidSelector({
   cities,
@@ -16,7 +15,6 @@ export default function MasjidSelector({
 }) {
   const [localMasjidId, setLocalMasjidId] = useState(selectedMasjid?._id || "");
 
-  // Sync local dropdown selection when selectedMasjid changes externally
   useEffect(() => {
     setLocalMasjidId(selectedMasjid?._id || "");
   }, [selectedMasjid]);
@@ -27,50 +25,35 @@ export default function MasjidSelector({
   };
 
   return (
-    <div className="space-y-2">
-      {/* City Dropdown */}
-      <select
-        className="border rounded p-2 w-full"
+    <div className="flex gap-2">
+      {/* City Selector */}
+      <Select
+        label="City"
         value={selectedCity}
         onChange={(e) => setSelectedCity(e.target.value)}
-      >
-        <option value="">Select City</option>
-        {cities.map((c) => (
-          <option key={c._id} value={c._id}>
-            {c.name}
-          </option>
-        ))}
-      </select>
+        options={cities}
+        placeholder="Select City"
+      />
 
-      {/* Area Dropdown */}
-      <select
-        className="border rounded p-2 w-full"
+      {/* Area Selector */}
+      <Select
+        label="Area"
         value={selectedArea}
         onChange={(e) => setSelectedArea(e.target.value)}
+        options={areas}
         disabled={!areas.length}
-      >
-        <option value="">Select Area</option>
-        {areas.map((a) => (
-          <option key={a._id} value={a._id}>
-            {a.name}
-          </option>
-        ))}
-      </select>
+        placeholder="Select Area"
+      />
 
-      {/* Masjid Dropdown */}
-      <select
-        className="border rounded p-2 w-full"
+      {/* Masjid Selector */}
+      <Select
+        label="Masjid"
         value={localMasjidId}
         onChange={handleMasjidChange}
-        disabled={!masjids.length} // only disable if no masjids at all
-      >
-        <option value="">Select Masjid</option>
-        {masjids.map((m) => (
-          <option key={m._id} value={m._id}>
-            {m.name}
-          </option>
-        ))}
-      </select>
+        options={masjids}
+        disabled={!masjids.length}
+        placeholder="Select Masjid"
+      />
     </div>
   );
 }

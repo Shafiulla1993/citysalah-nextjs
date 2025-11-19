@@ -14,12 +14,18 @@ export const Select = React.forwardRef(
       className,
       name,
       required = false,
+      placeholder,
     },
     ref
   ) => {
     return (
-      <div className="flex flex-col">
-        {label && <label className="mb-1 font-medium">{label}</label>}
+      <div className={label ? "flex flex-col" : "flex"}>
+        {label && (
+          <label className="mb-1 text-sm font-medium text-gray-700">
+            {label}
+          </label>
+        )}
+
         <select
           name={name}
           value={value}
@@ -28,13 +34,15 @@ export const Select = React.forwardRef(
           required={required}
           ref={ref}
           className={cn(
-            "flex h-9 w-full rounded-md border border-input bg-white px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50",
+            "flex h-10 w-full rounded-md border border-input bg-white px-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50",
             className
           )}
         >
-          <option value="">{`Select ${
-            label?.toLowerCase() || "option"
-          }`}</option>
+          {/* Placeholder */}
+          <option value="">
+            {placeholder || `Select ${label?.toLowerCase() || "option"}`}
+          </option>
+
           {options.map((opt) => (
             <option key={opt._id} value={opt._id}>
               {opt.name}

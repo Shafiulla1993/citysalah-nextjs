@@ -34,8 +34,6 @@ export async function GET(request) {
       );
     }
 
-    console.log("DB PRAYER TIMINGS:", masjid.prayerTimings);
-
     return NextResponse.json(masjid);
   } catch (err) {
     console.error("Error fetching masjid:", err);

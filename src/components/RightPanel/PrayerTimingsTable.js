@@ -1,13 +1,27 @@
-// src/components/RightPanel/PrayerTimingsTable.js
 "use client";
 import React from "react";
 
 export default function PrayerTimingsTable({ prayerTimings }) {
   if (!prayerTimings?.length) return null;
 
+  const timing = prayerTimings[0]; // single daily timing object
+
+  const timingsArray = [
+    { name: "Fajr", azan: timing.fajr?.azan, iqaamat: timing.fajr?.iqaamat },
+    { name: "Dhuhr", azan: timing.dhuhr?.azan, iqaamat: timing.dhuhr?.iqaamat },
+    { name: "Asr", azan: timing.asr?.azan, iqaamat: timing.asr?.iqaamat },
+    {
+      name: "Maghrib",
+      azan: timing.maghrib?.azan,
+      iqaamat: timing.maghrib?.iqaamat,
+    },
+    { name: "Isha", azan: timing.isha?.azan, iqaamat: timing.isha?.iqaamat },
+  ];
+
   return (
     <div className="bg-white shadow rounded p-4 overflow-x-auto">
       <h2 className="text-xl font-semibold mb-2">Prayer Timings</h2>
+
       <table className="table-auto w-full border border-gray-200">
         <thead className="bg-gray-100">
           <tr>
@@ -16,16 +30,15 @@ export default function PrayerTimingsTable({ prayerTimings }) {
             <th className="p-2 text-left border-b">Iqaamat</th>
           </tr>
         </thead>
+
         <tbody>
-          {prayerTimings.map((timing, idx) =>
-            timing.prayers.map((prayer, i) => (
-              <tr key={`${idx}-${i}`} className="border-b">
-                <td className="p-2">{prayer.name}</td>
-                <td className="p-2">{prayer.azaantime || "-"}</td>
-                <td className="p-2">{prayer.iqaamattime || "-"}</td>
-              </tr>
-            ))
-          )}
+          {timingsArray.map((p, idx) => (
+            <tr key={idx} className="border-b">
+              <td className="p-2">{p.name}</td>
+              <td className="p-2">{p.azan || "-"}</td>
+              <td className="p-2">{p.iqaamat || "-"}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

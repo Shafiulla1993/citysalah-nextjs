@@ -82,9 +82,14 @@ export const publicAPI = {
 
     const res = await fetch(`${BASE_URL}/public/masjids?${params.toString()}`);
     if (!res.ok) throw new Error("Failed to fetch masjids");
-    console.log(res);
 
-    return res.json();
+    const data = await res.json();
+
+    return data.map((m) => ({
+      ...m,
+      cityId: m.city?._id,
+      areaId: m.area?._id,
+    }));
   },
 
   /** ----------------- NEAREST MASJIDS ----------------- **/
@@ -93,14 +98,28 @@ export const publicAPI = {
       `${BASE_URL}/public/masjids/nearest?lat=${lat}&lng=${lng}&limit=${limit}`
     );
     if (!res.ok) throw new Error("Failed to fetch nearest masjids");
-    return res.json();
+
+    const data = await res.json();
+
+    return data.map((m) => ({
+      ...m,
+      cityId: m.city?._id,
+      areaId: m.area?._id,
+    }));
   },
 
   /** ----------------- MASJID BY ID ----------------- **/
   getMasjidById: async (id) => {
     const res = await fetch(`${BASE_URL}/public/masjids/${id}`);
     if (!res.ok) throw new Error("Failed to fetch masjid details");
-    return res.json();
+
+    const m = await res.json();
+
+    return {
+      ...m,
+      cityId: m.city?._id,
+      areaId: m.area?._id,
+    };
   },
 
   /** ----------------- PRAYER TIMINGS FROM MASJID MODEL ----------------- **/
