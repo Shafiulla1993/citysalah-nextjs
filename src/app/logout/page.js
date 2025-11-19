@@ -2,27 +2,28 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { authAPI } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LogoutPage() {
   const router = useRouter();
+  const { setLoggedIn, setUser } = useAuth();
 
   useEffect(() => {
-    const logout = async () => {
-      try {
-        await authAPI.logout(); // call logout API route
-        router.replace("/login"); // redirect to login page
-      } catch (err) {
-        console.error("Logout failed:", err.message);
-      }
-    };
+    async function doLogout() {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
 
-    logout();
-  }, [router]);
+      localStorage.removeItem("accessToken");
+      setLoggedIn(false);
+      setUser(null);
 
-  return (
-    <div className="flex justify-center items-center h-screen">
-      <p className="text-lg">Logging out...</p>
-    </div>
-  );
+      router.replace("/");
+    }
+
+    doLogout();
+  }, []);
+
+  return <p className="text-center mt-10">Logging out...</p>;
 }

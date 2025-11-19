@@ -1,7 +1,10 @@
+/// src/app/register/page.js
+
 "use client";
 
 import { useState, useEffect } from "react";
-import { authAPI, publicAPI } from "@/lib/api";
+import { authAPI } from "@/lib/api/auth";
+import { publicAPI } from "@/lib/api/public";
 import { Input } from "@/components/form/Input";
 import { Button } from "@/components/form/Button";
 import { Select } from "@/components/form/Select";

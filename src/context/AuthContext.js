@@ -1,31 +1,24 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { httpFetch } from "@/lib/http/fetchClient";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // optional, for SSR
+  const [loading, setLoading] = useState(true);
 
-  // Fetch login state from server
   const fetchLoginState = async () => {
     try {
-      const res = await fetch("/api/auth/me", {
+      const data = await httpFetch("/auth/me", {
         method: "GET",
-        credentials: "include", // 👈 important to send HttpOnly cookies
         cache: "no-store",
+        credentials: "include",
       });
 
-      if (!res.ok) {
-        setLoggedIn(false);
-        setUser(null);
-        return;
-      }
-
-      const data = await res.json();
-      setLoggedIn(data.loggedIn);
+      setLoggedIn(data.loggedIn ?? false);
       setUser(data.user || null);
     } catch (err) {
       setLoggedIn(false);
@@ -41,12 +34,18 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ loggedIn, setLoggedIn, user, fetchLoginState, loading }}
+      value={{
+        loggedIn,
+        setLoggedIn, // 🔥 very important
+        user,
+        setUser, // 🔥 needed for logout
+        loading,
+        fetchLoginState,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook for easier usage
 export const useAuth = () => useContext(AuthContext);

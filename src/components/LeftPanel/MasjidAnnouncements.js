@@ -1,7 +1,7 @@
 // src/components/LeftPanel/MasjidAnnouncements.js
 "use client";
 import React, { useEffect, useState } from "react";
-import { publicAPI } from "@/lib/api";
+import { publicAPI } from "@/lib/api/public";
 
 export default function MasjidAnnouncements({ masjidId }) {
   const [announcements, setAnnouncements] = useState([]);

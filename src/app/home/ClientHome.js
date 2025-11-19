@@ -13,7 +13,7 @@ import MasjidInfo from "@/components/RightPanel/MasjidInfo";
 import PrayerTimingsTable from "@/components/RightPanel/PrayerTimingsTable";
 import ContactInfo from "@/components/RightPanel/ContactInfo";
 
-import { publicAPI } from "@/lib/api";
+import { publicAPI } from "@/lib/api/public";
 
 export default function ClientHome() {
   const [cities, setCities] = useState([]);

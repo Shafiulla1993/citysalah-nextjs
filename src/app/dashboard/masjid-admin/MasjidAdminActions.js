@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { publicAPI } from "@/lib/api";
+import { publicAPI } from "@/lib/api/public/public";
 
 export default function MasjidAdminActions({ userId }) {
   const [areas, setAreas] = useState([]);

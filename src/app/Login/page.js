@@ -1,8 +1,10 @@
+//src/app/login/page.js
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authAPI } from "@/lib/api";
+import { authAPI } from "@/lib/api/auth";
 import { Input } from "@/components/form/Input";
 import { Button } from "@/components/form/Button";
 import { useAuth } from "@/context/AuthContext";
