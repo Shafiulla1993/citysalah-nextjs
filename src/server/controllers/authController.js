@@ -66,24 +66,17 @@ export async function loginUser({ phone, password }) {
   const user = await User.findOne({ phone });
   if (!user) return { json: { message: "User not found" }, status: 404 };
 
-  if (!user.password)
-    return { json: { message: "User has no password" }, status: 500 };
-
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return { json: { message: "Invalid password" }, status: 401 };
 
-  if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
-    return { json: { message: "JWT secrets not set" }, status: 500 };
-  }
-
   const accessToken = jwt.sign(
-    { id: user._id, role: user.role },
+    { userId: user._id, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "15m" }
   );
 
   const refreshToken = jwt.sign(
-    { id: user._id },
+    { userId: user._id },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: "7d" }
   );

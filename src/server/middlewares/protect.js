@@ -24,7 +24,7 @@ export async function protect(request) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select("-passwordHash");
+    const user = await User.findById(decoded.userId).select("-password");
     if (!user) return { error: "Invalid user", status: 401 };
 
     return { user };

@@ -95,6 +95,8 @@ export default function ClientHome() {
         setContacts(data.contacts || []);
       })
       .catch(console.error);
+
+    console.log(selectedMasjid.prayerTimings);
   }, [selectedMasjid]);
 
   const left = (

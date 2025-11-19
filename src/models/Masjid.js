@@ -19,17 +19,11 @@ const ContactPersonSchema = new Schema(
 
 const MasjidPrayerTimingSchema = new Schema(
   {
-    type: { type: String, enum: ["weekly", "date"], default: "weekly" },
-    dayOfWeek: { type: Number, min: 0, max: 6 },
-    date: { type: String },
-    prayers: [
-      {
-        name: { type: String, required: true },
-        azaanTime: { type: String, required: true },
-        iqaamatTime: { type: String },
-        note: { type: String },
-      },
-    ],
+    fajr: { azan: String, iqaamat: String },
+    dhuhr: { azan: String, iqaamat: String },
+    asr: { azan: String, iqaamat: String },
+    maghrib: { azan: String, iqaamat: String },
+    isha: { azan: String, iqaamat: String },
   },
   { _id: false }
 );

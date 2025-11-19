@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import connectDB from "@/lib/db";
 import { loginUser } from "@/server/controllers/authController";
 
@@ -18,28 +17,27 @@ export async function POST(req) {
 
   const res = NextResponse.json(loginResult.json);
 
-  // Optionally, set cookies if loginUser returned them
+  // ---- SET ACCESS TOKEN ----
   if (loginResult.cookies?.accessToken) {
     res.cookies.set("accessToken", loginResult.cookies.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/",
+      path: "/", // 👈 IMPORTANT
       maxAge: 60 * 15,
     });
   }
 
+  // ---- SET REFRESH TOKEN ----
   if (loginResult.cookies?.refreshToken) {
     res.cookies.set("refreshToken", loginResult.cookies.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/api/auth/refresh",
+      path: "/api/auth/refresh", // 👈 refresh only
       maxAge: 60 * 60 * 24 * 7,
     });
   }
-
-  console.log(loginUser.role);
 
   return res;
 }

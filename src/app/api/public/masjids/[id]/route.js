@@ -24,7 +24,8 @@ export async function GET(request) {
 
     const masjid = await Masjid.findById(id)
       .populate("city", "name timezone")
-      .populate("area", "name");
+      .populate("area", "name")
+      .lean();
 
     if (!masjid) {
       return NextResponse.json(
@@ -32,6 +33,8 @@ export async function GET(request) {
         { status: 404 }
       );
     }
+
+    console.log("DB PRAYER TIMINGS:", masjid.prayerTimings);
 
     return NextResponse.json(masjid);
   } catch (err) {
