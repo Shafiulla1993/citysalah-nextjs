@@ -1,30 +1,47 @@
-// app/dashboard/super-admin/page.js
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import { redirect } from "next/navigation";
-import SuperAdminActions from "./SuperAdminActions";
+// src/app/dashboard/super-admin/page.js
+"use client";
 
-// Mark this as a Server Component (no "use client")
-export default async function SuperAdminDashboardPage() {
-  // Await cookies() because it returns a promise in this context
-  const cookieStore = await cookies();
-  const token = cookieStore.get?.("accessToken")?.value;
+import React, { useEffect, useState } from "react";
+import SuperAdminDashboard from "@/components/sAdminDashbaord/dashboard";
+import { adminAPI } from "@/lib/api/sAdmin";
 
-  // Redirect immediately if no token
-  if (!token) redirect("/login");
+export default function SuperAdminPage() {
+  const [cities, setCities] = useState([]);
+  const [areas, setAreas] = useState([]);
+  const [masjids, setMasjids] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  let decoded;
-  try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.role !== "super_admin") redirect("/login");
-  } catch {
-    redirect("/login"); // invalid or expired token
-  }
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const citiesData = await adminAPI.getCities();
+        const areasData = await adminAPI.getAreas();
+        const masjidsData = await adminAPI.getMasjids();
+        const usersData = await adminAPI.getUsers();
+
+        setCities(citiesData || []);
+        setAreas(areasData || []);
+        setMasjids(masjidsData || []);
+        setUsers(usersData || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  if (loading) return <div className="p-4">Loading...</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">Super Admin Dashboard</h1>
-      <SuperAdminActions userId={decoded.id} />
-    </div>
+    <SuperAdminDashboard
+      cities={cities}
+      areas={areas}
+      masjids={masjids}
+      users={users}
+    />
   );
 }

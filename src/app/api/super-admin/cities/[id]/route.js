@@ -1,57 +1,25 @@
-import connectDB from "@/lib/db";
-import { protect } from "@/server/middlewares/protect";
-import { allowRoles } from "@/server/middlewares/role";
+// src/app/api/super-admin/cities/[id]/route.js
+
 import {
   getCityController,
   updateCityController,
   deleteCityController,
 } from "@/server/controllers/superadmin/cities.controller";
 
-export async function GET(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
+import { withAuth } from "@/lib/middleware/withAuth";
 
+export const GET = withAuth(async ({ params }) => {
   const res = await getCityController({ id: params.id });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+}, "super_admin");
 
-export async function PUT(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
-
+export const PUT = withAuth(async ({ request, params }) => {
   const body = await request.json();
   const res = await updateCityController({ id: params.id, body });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+}, "super_admin");
 
-export async function DELETE(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
-
+export const DELETE = withAuth(async ({ params }) => {
   const res = await deleteCityController({ id: params.id });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+}, "super_admin");

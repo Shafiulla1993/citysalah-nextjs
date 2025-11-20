@@ -1,6 +1,8 @@
+// src/lib/api/sAdmin
+
 import { httpFetch } from "../http/fetchClient";
 
-const BASE = "/super-admin";
+const BASE = "";
 
 export const adminAPI = {
   /** ------------------- SUPER ADMIN ------------------- **/

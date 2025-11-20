@@ -1,61 +1,32 @@
-import connectDB from "@/lib/db";
-import { protect } from "@/server/middlewares/protect";
-import { allowRoles } from "@/server/middlewares/role";
+// src/app/api/super-admin/general-announcements/[id]/route.js
+
 import {
   getGeneralAnnouncementController,
   updateGeneralAnnouncementController,
   deleteGeneralAnnouncementController,
 } from "@/server/controllers/superadmin/generalAnnouncements.controller";
 
-export async function GET(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
+import { withAuth } from "@/server/utils/winAuth";
 
+export const GET = withAuth("super_admin", async ({ params }) => {
   const res = await getGeneralAnnouncementController({ id: params.id });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+});
 
-export async function PUT(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
+export const PUT = withAuth(
+  "super_admin",
+  async ({ request, params, user }) => {
+    const body = await request.json();
+    const res = await updateGeneralAnnouncementController({
+      id: params.id,
+      body,
+      user,
     });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
+    return res;
+  }
+);
 
-  const body = await request.json();
-  const res = await updateGeneralAnnouncementController({
-    id: params.id,
-    body,
-    user: auth.user,
-  });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
-
-export async function DELETE(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
-
+export const DELETE = withAuth("super_admin", async ({ params }) => {
   const res = await deleteGeneralAnnouncementController({ id: params.id });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+});

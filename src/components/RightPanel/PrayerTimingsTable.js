@@ -1,10 +1,29 @@
+
+
 "use client";
 import React from "react";
+import { Slab } from "react-loading-indicators"; // <-- import the loader
 
-export default function PrayerTimingsTable({ prayerTimings }) {
-  if (!prayerTimings?.length) return null;
+export default function PrayerTimingsTable({ prayerTimings, loading }) {
+  // SHOW LOADING
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <Slab color="#32cd32" size="large" text="" textColor="" />
+      </div>
+    );
+  }
 
-  const timing = prayerTimings[0]; // single daily timing object
+  // NO DATA
+  if (!prayerTimings?.length) {
+    return (
+      <div className="bg-white shadow rounded p-4 text-center text-gray-500">
+        No prayer timings available.
+      </div>
+    );
+  }
+
+  const timing = prayerTimings[0];
 
   const timingsArray = [
     { name: "Fajr", azan: timing.fajr?.azan, iqaamat: timing.fajr?.iqaamat },

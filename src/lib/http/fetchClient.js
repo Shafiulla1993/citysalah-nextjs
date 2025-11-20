@@ -1,4 +1,4 @@
-// src/lib/http/httpFetch.js
+// src/lib/http/clientFetch.js
 
 let isRefreshing = false;
 let refreshQueue = [];
@@ -6,7 +6,7 @@ let refreshQueue = [];
 const BASE_URL = "/api";
 
 /**
- * Add failed requests to a queue while refresh is running
+ * Add failed requests to queue until refresh completes
  */
 function addToQueue(callback) {
   return new Promise((resolve, reject) => {
@@ -15,114 +15,109 @@ function addToQueue(callback) {
 }
 
 /**
- * Process the queue once refresh is done
+ * Resolve queued requests
  */
 function processQueue(error, token = null) {
   refreshQueue.forEach((req) => {
-    if (error) {
-      req.reject(error);
-    } else {
-      req.resolve(req.callback(token));
-    }
+    if (error) req.reject(error);
+    else req.resolve(req.callback(token));
   });
   refreshQueue = [];
 }
 
 /**
- * Main Http Client
+ * MAIN HTTP CLIENT (cookies + optional access token)
  */
 export async function httpFetch(url, options = {}) {
-  let accessToken =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
-  // Always attach token if available
-  const headers = {
-    "Content-Type": "application/json",
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    ...(options.headers || {}),
-  };
-
   const config = {
-    credentials: "include", // ensures cookie refresh also works
+    credentials: "include",
+    cache: "no-store",
     ...options,
-    headers,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
   };
 
   try {
     let res = await fetch(BASE_URL + url, config);
 
-    // If ok, return JSON
-    if (res.ok) {
-      return await res.json();
-    }
+    // -----------------------------
+    // SUCCESS
+    // -----------------------------
+    if (res.ok) return await res.json();
 
-    // If Unauthorized (token expired)
+    // -----------------------------
+    // 401 HANDLING (TOKEN EXPIRED)
+    // -----------------------------
     if (res.status === 401) {
-      // ⛔ If refresh already happening → queue this request
-      if (isRefreshing) {
-        return addToQueue((newToken) => {
-          return httpFetch(url, {
-            ...options,
-            headers: {
-              ...headers,
-              Authorization: `Bearer ${newToken}`,
-            },
-          });
-        });
+      // 👉 IMPORTANT: DO NOT REFRESH FOR LOGIN
+      if (url.includes("/auth/login")) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Invalid credentials");
       }
 
-      // ⚠ Start refresh flow
+      // Queue request if another refresh is running
+      if (isRefreshing) {
+        return addToQueue((newToken) =>
+          httpFetch(url, {
+            ...options,
+            headers: {
+              ...config.headers,
+              Authorization: `Bearer ${newToken}`,
+            },
+          })
+        );
+      }
+
+      // BEGIN REFRESH
       isRefreshing = true;
 
       try {
-        const refreshRes = await fetch(`${BASE_URL}/super-admin/auth/refresh`, {
+        const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
 
-        if (!refreshRes.ok) {
-          throw new Error("Refresh failed");
-        }
+        if (!refreshRes.ok) throw new Error("Refresh failed");
 
         const data = await refreshRes.json();
-
         const newToken = data?.accessToken;
-        if (!newToken) throw new Error("No token returned");
 
-        // Save new token
-        localStorage.setItem("accessToken", newToken);
+        if (!newToken) throw new Error("No new access token");
 
-        // Process queued requests
+        // Process waiting requests
         processQueue(null, newToken);
 
-        // Retry original request with new token
+        // Retry original request
         return httpFetch(url, {
           ...options,
           headers: {
-            ...headers,
+            ...config.headers,
             Authorization: `Bearer ${newToken}`,
           },
         });
-      } catch (error) {
-        processQueue(error, null);
-        localStorage.removeItem("accessToken");
+      } catch (err) {
+        // Refresh failed → fail queued requests & logout
+        processQueue(err, null);
 
-        // Auto logout fallback
         if (typeof window !== "undefined") {
-          window.location.href = "/super-admin/login";
+          window.location.href = "/login";
         }
 
-        throw error;
+        throw err;
       } finally {
         isRefreshing = false;
       }
     }
 
-    // If other error
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Request failed");
-  } catch (error) {
-    console.error("httpFetch Error:", error);
-    throw error;
+    // -----------------------------
+    // OTHER ERRORS
+    // -----------------------------
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.message || "Request failed");
+  } catch (err) {
+    console.error("httpFetch Error:", err);
+    throw err;
   }
 }

@@ -1,54 +1,36 @@
 // src/app/api/super-admin/masjids/route.js
-import connectDB from "@/lib/db";
-import { protect } from "@/server/middlewares/protect";
-import { allowRoles } from "@/server/middlewares/role";
+
 import { parseForm } from "@/lib/middleware/parseForm";
 import {
   createMasjidController,
   getAllMasjidsController,
 } from "@/server/controllers/superadmin/masjids.controller";
+import { withAuth } from "@/lib/middleware/withAuth";
 
-// GET all
-export async function GET(request) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
+// ---------------- GET ALL MASJIDS ----------------
+export const GET = withAuth(async ({ user }) => {
+  // DEBUG: check user object
+  console.log("[GET /masjids] Current user:", user);
 
-  const check = allowRoles("super_admin")(auth.user);
-  if (check.error)
-    return new Response(JSON.stringify({ message: check.error }), {
-      status: 403,
-    });
-
+  // Call controller
   const res = await getAllMasjidsController();
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res; // { status, json } will be handled by withAuth
+}, "super_admin");
 
-// POST create (accepts multipart/form-data or JSON)
-export async function POST(request) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
+// ---------------- CREATE MASJID ----------------
+export const POST = withAuth(async ({ request, user }) => {
+  // DEBUG: check user
+  console.log("[POST /masjids] Current user:", user);
 
-  const check = allowRoles("super_admin")(auth.user);
-  if (check.error)
-    return new Response(JSON.stringify({ message: check.error }), {
-      status: 403,
-    });
-
-  // parse form
-  const { fields, files } = await parseForm(request).catch((e) => ({
+  // Parse form (multipart or JSON)
+  const { fields, files } = await parseForm(request).catch(() => ({
     fields: {},
     files: {},
   }));
+
   const file = files?.image || files?.file || null;
 
-  const res = await createMasjidController({ fields, file, user: auth.user });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  // Call controller with parsed fields, file, and user
+  const res = await createMasjidController({ fields, file, user });
+  return res;
+}, "super_admin");

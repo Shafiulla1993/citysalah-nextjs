@@ -1,3 +1,5 @@
+// src/server/utils/createToken
+
 import jwt from "jsonwebtoken";
 
 export function createAccessToken(user) {
@@ -18,8 +20,10 @@ export function createRefreshToken(user) {
 
 export function verifyToken(token) {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET); // returns decoded payload
+    return jwt.verify(token, process.env.JWT_SECRET, {
+      ignoreExpiration: false,
+    });
   } catch (err) {
-    return null; // invalid or expired token
+    return null; // Force "not logged in"
   }
 }

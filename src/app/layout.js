@@ -1,4 +1,5 @@
 import "./globals.css";
+
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 
@@ -25,7 +26,7 @@ export default function RootLayout({ children }) {
         <title>{metadata.title}</title>
       </head>
 
-      <body className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans antialiased">
+      <body className="bg-gradient-to-r from-slate-300 to-slate-500 pt-12">
         <AuthProvider>
           {/* Navbar */}
           <Navbar />

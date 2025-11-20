@@ -1,7 +1,5 @@
 // src/app/api/super-admin/masjids/[id]/route.js
-import connectDB from "@/lib/db";
-import { protect } from "@/server/middlewares/protect";
-import { allowRoles } from "@/server/middlewares/role";
+
 import { parseForm } from "@/lib/middleware/parseForm";
 import {
   getMasjidController,
@@ -9,75 +7,32 @@ import {
   deleteMasjidController,
 } from "@/server/controllers/superadmin/masjids.controller";
 
-// NOTE: in Next 16 dynamic api, context.params is Promise - await it
-export async function GET(request, context) {
-  await connectDB();
-  const { id } = await context.params;
+import { withAuth } from "@/server/utils/winAuth";
 
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
+export const GET = withAuth("super_admin", async ({ params }) => {
+  const res = await getMasjidController({ id: params.id });
+  return res;
+});
+
+export const PUT = withAuth(
+  "super_admin",
+  async ({ request, params, user }) => {
+    const { fields, files } = await parseForm(request).catch(() => ({
+      fields: {},
+      files: {},
+    }));
+    const file = files?.image || files?.file || null;
+    const res = await updateMasjidController({
+      id: params.id,
+      fields,
+      file,
+      user,
     });
+    return res;
+  }
+);
 
-  const check = allowRoles("super_admin")(auth.user);
-  if (check.error)
-    return new Response(JSON.stringify({ message: check.error }), {
-      status: 403,
-    });
-
-  const res = await getMasjidController({ id });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
-
-export async function PUT(request, context) {
-  await connectDB();
-  const { id } = await context.params;
-
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-
-  const check = allowRoles("super_admin")(auth.user);
-  if (check.error)
-    return new Response(JSON.stringify({ message: check.error }), {
-      status: 403,
-    });
-
-  // parse fields/files
-  const { fields, files } = await parseForm(request).catch((e) => ({
-    fields: {},
-    files: {},
-  }));
-  const file = files?.image || files?.file || null;
-
-  const res = await updateMasjidController({
-    id,
-    fields,
-    file,
-    user: auth.user,
-  });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
-
-export async function DELETE(request, context) {
-  await connectDB();
-  const { id } = await context.params;
-
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-
-  const check = allowRoles("super_admin")(auth.user);
-  if (check.error)
-    return new Response(JSON.stringify({ message: check.error }), {
-      status: 403,
-    });
-
-  const res = await deleteMasjidController({ id });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+export const DELETE = withAuth("super_admin", async ({ params }) => {
+  const res = await deleteMasjidController({ id: params.id });
+  return res;
+});

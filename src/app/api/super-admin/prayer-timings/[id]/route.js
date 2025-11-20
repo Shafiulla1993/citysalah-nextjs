@@ -1,65 +1,26 @@
-import connectDB from "@/lib/db";
-import { protect } from "@/server/middlewares/protect";
-import { allowRoles } from "@/server/middlewares/role";
+// src/app/api/super-admin/prayer-timings/[id]/route.js
+
 import GeneralPrayerTiming from "@/models/GeneralPrayerTiming";
+import { withAuth } from "@/server/utils/winAuth";
 
-export async function GET(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
-
+export const GET = withAuth("super_admin", async ({ params }) => {
   const timing = await GeneralPrayerTiming.findById(params.id).populate(
     "city area"
   );
-  if (!timing)
-    return new Response(JSON.stringify({ message: "Timing not found" }), {
-      status: 404,
-    });
-  return new Response(JSON.stringify(timing), { status: 200 });
-}
+  if (!timing) return { status: 404, json: { message: "Timing not found" } };
+  return { status: 200, json: timing };
+});
 
-export async function PUT(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
-
+export const PUT = withAuth("super_admin", async ({ request, params }) => {
   const body = await request.json();
   const updated = await GeneralPrayerTiming.findByIdAndUpdate(params.id, body, {
     new: true,
   });
-  if (!updated)
-    return new Response(JSON.stringify({ message: "Timing not found" }), {
-      status: 404,
-    });
-  return new Response(JSON.stringify(updated), { status: 200 });
-}
+  if (!updated) return { status: 404, json: { message: "Timing not found" } };
+  return { status: 200, json: updated };
+});
 
-export async function DELETE(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
-
+export const DELETE = withAuth("super_admin", async ({ params }) => {
   await GeneralPrayerTiming.findByIdAndDelete(params.id);
-  return new Response(JSON.stringify({ message: "Deleted" }), { status: 200 });
-}
+  return { status: 200, json: { message: "Deleted" } };
+});

@@ -1,43 +1,19 @@
-import connectDB from "@/lib/db";
-import { protect } from "@/server/middlewares/protect";
-import { allowRoles } from "@/server/middlewares/role";
+// src/app/api/super-admin/general-announcements/route.js
+
 import {
   createGeneralAnnouncementController,
   getGeneralAnnouncementsController,
 } from "@/server/controllers/superadmin/generalAnnouncements.controller";
 
-export async function GET(request) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
+import { withAuth } from "@/server/utils/winAuth";
 
+export const GET = withAuth("super_admin", async () => {
   const res = await getGeneralAnnouncementsController();
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+});
 
-export async function POST(request) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  if (allowRoles("super_admin")(auth.user).error)
-    return new Response(JSON.stringify({ message: "Forbidden" }), {
-      status: 403,
-    });
-
+export const POST = withAuth("super_admin", async ({ request, user }) => {
   const body = await request.json();
-  const res = await createGeneralAnnouncementController({
-    body,
-    user: auth.user,
-  });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  const res = await createGeneralAnnouncementController({ body, user });
+  return res;
+});

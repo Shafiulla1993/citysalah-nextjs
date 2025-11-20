@@ -1,63 +1,25 @@
-import connectDB from "@/lib/db";
-import { protect } from "@/server/middlewares/protect";
-import { allowRoles } from "@/server/middlewares/role";
+// src/app/api/super-admin/users/[id]/route.js
+
 import {
   getUserByIdController,
   updateUserController,
   deleteUserController,
 } from "@/server/controllers/superadmin/users.controller";
 
-export async function GET(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  const roleCheck = allowRoles("super_admin")(auth.user);
-  if (roleCheck.error)
-    return new Response(
-      JSON.stringify({ message: roleCheck.error || "Forbidden" }),
-      { status: 403 }
-    );
+import { withAuth } from "@/server/utils/winAuth";
 
+export const GET = withAuth("super_admin", async ({ params }) => {
   const res = await getUserByIdController({ id: params.id });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+});
 
-export async function PUT(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  const roleCheck = allowRoles("super_admin")(auth.user);
-  if (roleCheck.error)
-    return new Response(
-      JSON.stringify({ message: roleCheck.error || "Forbidden" }),
-      { status: 403 }
-    );
-
+export const PUT = withAuth("super_admin", async ({ request, params }) => {
   const body = await request.json();
   const res = await updateUserController({ id: params.id, body });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+});
 
-export async function DELETE(request, { params }) {
-  await connectDB();
-  const auth = await protect(request);
-  if (auth.error)
-    return new Response(JSON.stringify({ message: auth.error }), {
-      status: auth.status,
-    });
-  const roleCheck = allowRoles("super_admin")(auth.user);
-  if (roleCheck.error)
-    return new Response(
-      JSON.stringify({ message: roleCheck.error || "Forbidden" }),
-      { status: 403 }
-    );
-
+export const DELETE = withAuth("super_admin", async ({ params }) => {
   const res = await deleteUserController({ id: params.id });
-  return new Response(JSON.stringify(res.json), { status: res.status });
-}
+  return res;
+});

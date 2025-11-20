@@ -1,3 +1,5 @@
+// src/server/controllers/authController
+
 import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import City from "@/models/City";
@@ -64,10 +66,12 @@ export async function loginUser({ phone, password }) {
   }
 
   const user = await User.findOne({ phone });
-  if (!user) return { json: { message: "User not found" }, status: 404 };
+  if (!user)
+    return { json: { message: "Phone or Password incorrect" }, status: 404 };
 
   const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return { json: { message: "Invalid password" }, status: 401 };
+  if (!valid)
+    return { json: { message: "Phone or Password incorrect" }, status: 401 };
 
   const accessToken = jwt.sign(
     { userId: user._id, role: user.role },

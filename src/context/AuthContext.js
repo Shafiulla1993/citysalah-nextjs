@@ -1,7 +1,9 @@
+// src/context/AuthContext
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { httpFetch } from "@/lib/http/fetchClient";
+import { usePathname } from "next/navigation";
 
 const AuthContext = createContext();
 
@@ -9,6 +11,8 @@ export const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const pathname = usePathname();
 
   const fetchLoginState = async () => {
     try {
@@ -28,17 +32,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 🔥 RUN ON EVERY ROUTE CHANGE
   useEffect(() => {
     fetchLoginState();
-  }, []);
+  }, [pathname]);
 
   return (
     <AuthContext.Provider
       value={{
         loggedIn,
-        setLoggedIn, // 🔥 very important
+        setLoggedIn,
         user,
-        setUser, // 🔥 needed for logout
+        setUser,
         loading,
         fetchLoginState,
       }}
