@@ -9,7 +9,6 @@ export const adminAPI = {
   getDashboard: () => httpFetch(`${BASE}/dashboard`),
 
   getUsers: () => httpFetch(`${BASE}/super-admin/users`),
-
   getUserById: (id) => httpFetch(`${BASE}/super-admin/users/${id}`),
 
   updateUser: (id, data) =>
@@ -25,6 +24,9 @@ export const adminAPI = {
 
   /** ------------------- CITIES ------------------- **/
   getCities: () => httpFetch(`${BASE}/super-admin/cities`),
+
+  // ✅ ADD THIS
+  getCityById: (id) => httpFetch(`${BASE}/super-admin/cities/${id}`),
 
   createCity: (data) =>
     httpFetch(`${BASE}/super-admin/cities`, {
@@ -46,6 +48,9 @@ export const adminAPI = {
   /** ------------------- AREAS ------------------- **/
   getAreas: () => httpFetch(`${BASE}/super-admin/areas`),
 
+  // ✅ ADD THIS
+  getAreaById: (id) => httpFetch(`${BASE}/super-admin/areas/${id}`),
+
   createArea: (data) =>
     httpFetch(`${BASE}/super-admin/areas`, {
       method: "POST",
@@ -65,7 +70,6 @@ export const adminAPI = {
 
   /** ------------------- MASJIDS ------------------- **/
   getMasjids: () => httpFetch(`${BASE}/super-admin/masjids`),
-
   getMasjidById: (id) => httpFetch(`${BASE}/super-admin/masjids/${id}`),
 
   createMasjid: (data) =>
