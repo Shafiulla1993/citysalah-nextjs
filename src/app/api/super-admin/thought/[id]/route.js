@@ -5,7 +5,7 @@ import {
   updateThoughtController,
   deleteThoughtController,
 } from "@/server/controllers/superadmin/thought.controller";
-import { withAuth } from "@/server/utils/winAuth";
+import { withAuth } from "@/server/utils/withAuth";
 
 export const GET = withAuth("super_admin", async ({ params }) => {
   const res = await getThoughtController({ id: params.id });

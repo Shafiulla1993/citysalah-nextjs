@@ -1,4 +1,4 @@
-// src/server/utils/winAuth.js
+// src/server/utils/withAuth.js
 import connectDB from "@/lib/db";
 import { protect } from "@/server/middlewares/protect";
 import { allowRoles } from "@/server/middlewares/role";

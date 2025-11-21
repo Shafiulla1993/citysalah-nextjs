@@ -7,7 +7,7 @@ import {
   deleteMasjidController,
 } from "@/server/controllers/superadmin/masjids.controller";
 
-import { withAuth } from "@/server/utils/winAuth";
+import { withAuth } from "@/server/utils/withAuth";
 
 export const GET = withAuth("super_admin", async ({ params }) => {
   const res = await getMasjidController({ id: params.id });

@@ -5,7 +5,7 @@ import {
   getGeneralAnnouncementsController,
 } from "@/server/controllers/superadmin/generalAnnouncements.controller";
 
-import { withAuth } from "@/server/utils/winAuth";
+import { withAuth } from "@/server/utils/withAuth";
 
 export const GET = withAuth("super_admin", async () => {
   const res = await getGeneralAnnouncementsController();
