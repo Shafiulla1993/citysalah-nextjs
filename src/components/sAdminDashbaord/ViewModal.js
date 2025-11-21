@@ -17,13 +17,6 @@ export default function ViewModal({ item = {}, type, onClose }) {
 
         <div className="space-y-3 text-sm text-gray-800">
           <div>
-            <div className="text-xs text-gray-500">ID</div>
-            <div className="font-medium break-words">
-              {item._id ?? item.id ?? "-"}
-            </div>
-          </div>
-
-          <div>
             <div className="text-xs text-gray-500">Name</div>
             <div className="font-medium">{item.name ?? "-"}</div>
           </div>

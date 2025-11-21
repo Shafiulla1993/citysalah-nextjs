@@ -1,5 +1,7 @@
+// src/app/api/public/areas/[areaId]/route.js
+
 import { NextResponse } from "next/server";
-import Area from "@/models/Area"; // Make sure you have Area model
+import Area from "@/models/Area";
 import connectDB from "@/lib/db";
 
 export async function GET(req) {

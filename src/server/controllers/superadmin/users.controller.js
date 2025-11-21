@@ -11,12 +11,14 @@ import Masjid from "@/models/Masjid";
  */
 
 export async function getAllUsersController() {
-  const users = await User.find().select("-passwordHash");
+  const users = await User.find().select("-passwordHash").populate("city area");
   return { status: 200, json: users };
 }
 
 export async function getUserByIdController({ id }) {
-  const user = await User.findById(id).select("-passwordHash");
+  const user = await User.findById(id)
+    .select("-passwordHash")
+    .populate("city area");
   if (!user) return { status: 404, json: { message: "User not found" } };
   return { status: 200, json: user };
 }

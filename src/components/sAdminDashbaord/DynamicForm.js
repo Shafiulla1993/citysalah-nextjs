@@ -88,12 +88,12 @@ export default function DynamicForm(props) {
         const item = res?.data ?? res ?? null;
         if (item) {
           setForm({
-            name: item.name ?? "",
-            city: item.city?._id ?? item.city ?? item.cityId ?? "",
-            area: item.area?._id ?? item.area ?? item.areaId ?? "",
-            address: item.address ?? "",
-            email: item.email ?? "",
-            phone: item.phone ?? "",
+            name: item.name,
+            city: item.city,
+            area: item.area,
+            address: item.address,
+            email: item.email,
+            phone: item.phone,
             ...item,
           });
         }

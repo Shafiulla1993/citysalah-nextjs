@@ -8,17 +8,17 @@ import {
 import { withAuth } from "@/lib/middleware/withAuth";
 
 // ---------------- GET ALL MASJIDS ----------------
-export const GET = withAuth(async ({ user }) => {
+export const GET = withAuth("super_admin", async ({ user }) => {
   // DEBUG: check user object
   console.log("[GET /masjids] Current user:", user);
 
   // Call controller
   const res = await getAllMasjidsController();
   return res; // { status, json } will be handled by withAuth
-}, "super_admin");
+});
 
 // ---------------- CREATE MASJID ----------------
-export const POST = withAuth(async ({ request, user }) => {
+export const POST = withAuth("super_admin", async ({ request, user }) => {
   // DEBUG: check user
   console.log("[POST /masjids] Current user:", user);
 
@@ -33,4 +33,4 @@ export const POST = withAuth(async ({ request, user }) => {
   // Call controller with parsed fields, file, and user
   const res = await createMasjidController({ fields, file, user });
   return res;
-}, "super_admin");
+});

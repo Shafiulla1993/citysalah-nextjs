@@ -3,8 +3,11 @@ import { httpFetch } from "../http/fetchClient";
 const BASE = "/public";
 
 export const publicAPI = {
-  /** ----------------- CITIES ----------------- **/
+  /** -----------------ALL CITIES ----------------- **/
   getCities: () => httpFetch(`${BASE}/cities`),
+
+  /** -----------------ALL CITIES ----------------- **/
+  getCity: (cityId) => httpFetch(`${BASE}/cities/${cityId}`),
 
   /** ----------------- AREAS ----------------- **/
   getAreas: (cityId) => httpFetch(`${BASE}/areas?cityId=${cityId}`),

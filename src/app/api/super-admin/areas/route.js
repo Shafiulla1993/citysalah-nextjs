@@ -7,13 +7,13 @@ import {
 
 import { withAuth } from "@/lib/middleware/withAuth";
 
-export const GET = withAuth(async () => {
+export const GET = withAuth("super_admin", async () => {
   const res = await getAreasController();
   return res;
-}, "super_admin");
+});
 
-export const POST = withAuth(async ({ request }) => {
+export const POST = withAuth("super_admin", async ({ request }) => {
   const body = await request.json();
   const res = await createAreaController({ body });
   return res;
-}, "super_admin");
+});
